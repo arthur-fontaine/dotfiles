@@ -11,7 +11,7 @@ export ZSHRCD=~/.config/zsh/zshrc.d
 
 
 # Activate Antidote
-source /usr/local/opt/antidote/share/antidote/antidote.zsh
+source /opt/homebrew/opt/antidote/share/antidote/antidote.zsh
 antidote load ~/.config/zsh/zsh_plugins.txt
 
 
