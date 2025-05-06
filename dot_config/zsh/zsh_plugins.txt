@@ -1,0 +1,15 @@
+zsh-users/zsh-completions
+belak/zsh-utils path:completion
+
+mattmc3/zshrc.d
+
+romkatv/powerlevel10k
+
+Aloxaf/fzf-tab
+zsh-users/zsh-autosuggestions
+
+MichaelAquilina/zsh-autoswitch-virtualenv
+
+zdharma-continuum/fast-syntax-highlighting kind:defer
+agkozak/zsh-z kind:defer
+zsh-users/zsh-history-substring-search kind:defer
