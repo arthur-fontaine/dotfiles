@@ -1,0 +1,6 @@
+[tools]
+node = 'lts'
+python = 'latest'
+go = 'latest'
+"npm:pnpm" = 'latest'
+"npm:bun" = 'latest'

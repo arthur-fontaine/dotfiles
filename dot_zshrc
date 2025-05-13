@@ -16,3 +16,4 @@ antidote load ~/.config/zsh/zsh_plugins.txt
 
 
 # The rest of the config is in the ./.config/zshrc.d directory
+eval "$(mise activate zsh)"
