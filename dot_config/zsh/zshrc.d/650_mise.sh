@@ -1,2 +1,2 @@
-echo 'eval "$(mise activate zsh)"' >> ~/.zshrc
+eval "$(mise activate zsh)"
 
