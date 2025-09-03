@@ -1,6 +1,16 @@
 [tools]
 node = 'lts'
+deno = 'latest'
 python = 'latest'
+uv = 'latest'
 go = 'latest'
+rust = 'latest'
 "npm:pnpm" = 'latest'
 "npm:bun" = 'latest'
+"npm:yarn" = 'latest'
+"npm:gitignore.cli" = 'latest'
+"npm:@go-task/cli" = 'latest'
+"npm:gacp" = 'latest'
+
+[settings]
+idiomatic_version_file_enable_tools = ["python"]
