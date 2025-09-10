@@ -1,5 +1,5 @@
+mattmc3/ez-compinit
 zsh-users/zsh-completions
-belak/zsh-utils path:completion
 
 mattmc3/zshrc.d
 
