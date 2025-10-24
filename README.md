@@ -78,3 +78,12 @@ open -a "Lunar"
 > - Open Lunar settings and go to Hotkeys
 > - In `Brightness keys adjust > In other modes`, set `Display with cursor`
 > - Change brightness on all monitors and follow the steps of the Lunar window that just openedx
+
+### Ice
+
+```sh
+open -a "Ice"
+```
+
+> - Grant accessibility permission and continue in limited mode
+> - Open Ice settings and enable "Launch at login"
