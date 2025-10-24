@@ -46,3 +46,14 @@ open -a "Raycast"
 > - Write `raycast settings general`
 > - Click `Replace Spotlight`
 > - Click `Cloud Sync` and enable it
+
+### 1password
+
+```sh
+open -a "1password"
+```
+
+> - Log in.
+> - Click on `Developer`
+> - Click on `SSH Agent`, then `Configure the SSH agent`
+> - Go back and click on `CLI`. `Enable the integration`
