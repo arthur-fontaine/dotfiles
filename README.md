@@ -18,7 +18,7 @@ defaults write -g NSPreferredExternalTerminalApp -string "Ghostty"
 
 ## Settings
 
-## Set Keyboard to “U.S. International – PC”
+### Set Keyboard to “U.S. International – PC”
 
 **Steps:**
 1. Open **System Settings → Keyboard → Input Sources**  
@@ -29,7 +29,7 @@ defaults write -g NSPreferredExternalTerminalApp -string "Ghostty"
 
 ---
 
-## Disable “Natural Scrolling”
+### Disable “Natural Scrolling”
 
 **Steps:**
 1. Open **System Settings → Trackpad → Scroll & Zoom**  
