@@ -27,10 +27,22 @@ defaults write -g NSPreferredExternalTerminalApp -string "Ghostty"
 4. Add it to your list of input sources  
 5. Remove other layouts like **“ABC”** or **“U.S.”** to make it the default
 
----
-
 ### Disable “Natural Scrolling”
 
 **Steps:**
 1. Open **System Settings → Trackpad → Scroll & Zoom**  
 2. Toggle **“Natural Scrolling”** off
+
+## Start using
+
+### Raycast
+
+```sh
+open -a "Raycast"
+```
+
+> - Follow the instructions. Skip all
+> - Click `Alt + Space`
+> - Write `raycast settings general`
+> - Click `Replace Spotlight`
+> - Click `Cloud Sync` and enable it
