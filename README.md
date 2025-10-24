@@ -14,6 +14,7 @@ antidote bundle < ~/.config/zsh/zsh_plugins.txt > ~/.config/zsh/zsh_plugins.zsh
 
 ```sh
 defaults write -g NSPreferredExternalTerminalApp -string "Ghostty"
+/Applications/KekaExternalHelper.app/Contents/MacOS/KekaExternalHelper --set-as-default
 ```
 
 ## Settings
