@@ -34,6 +34,12 @@ defaults write -g NSPreferredExternalTerminalApp -string "Ghostty"
 1. Open **System Settings → Trackpad → Scroll & Zoom**  
 2. Toggle **“Natural Scrolling”** off
 
+### Screenshot settings
+
+```sh
+mkcd ~/Pictures/Screenshots
+```
+
 ## Start using
 
 ### Raycast
