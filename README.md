@@ -58,3 +58,13 @@ open -a "1password"
 > - Click on `Developer`
 > - Click on `SSH Agent`, then `Configure the SSH agent`
 > - Go back and click on `CLI`. `Enable the integration`
+
+### AirBattery
+
+```sh
+open -a "AirBattery"
+```
+
+> - Open System Settings, and go to Security settings
+> - Allow to launch AirBattery
+> - You can add the AirBattery widget on the desktop or the sidebar
