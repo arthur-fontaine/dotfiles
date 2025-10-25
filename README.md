@@ -93,3 +93,11 @@ open -a "Ice"
 
 > - Grant accessibility permission and continue in limited mode
 > - Open Ice settings and enable "Launch at login"
+
+### Alcove
+
+```sh
+open -a /Applications/Alcove.app
+```
+
+> - Grant all permissions asked
