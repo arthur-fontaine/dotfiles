@@ -8,6 +8,7 @@ sudo xcode-select --install
 brew bundle --file ~/.Brewfile
 sh -c "$(curl -fsLS get.chezmoi.io)" -- init --ssh --apply arthur-fontaine
 antidote bundle < ~/.config/zsh/zsh_plugins.txt > ~/.config/zsh/zsh_plugins.zsh
+mise install
 ```
 
 ## Set some defaults
