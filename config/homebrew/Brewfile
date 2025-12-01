@@ -1,29 +1,12 @@
+# Brewfile for macOS GUI applications
+# These applications are not available in Nix and must be installed via Homebrew
+# Run: brew bundle --file=~/.config/homebrew/Brewfile
+
+# Taps
 tap "lihaoyun6/tap"
 tap "oven-sh/bun"
-brew "act"
-brew "antidote"
-brew "awscli"
-brew "bacon"
-brew "chezmoi"
-brew "codex"
-brew "duckdb"
-brew "eza"
-brew "fx"
-brew "fzf"
-brew "gh"
-brew "git-delta"
-brew "git-lfs"
-brew "gitingest"
-brew "gnupg"
-brew "graphviz"
-brew "httpie"
-brew "hyperfine"
-brew "jupyterlab"
-brew "lazygit"
-brew "mise"
-brew "poppler"
-brew "pyenv"
-brew "thefuck"
+
+# GUI Applications (Casks)
 cask "1password"
 cask "1password-cli"
 cask "airbattery"
@@ -44,6 +27,8 @@ cask "raycast"
 cask "visual-studio-code"
 cask "zed"
 cask "zen"
+
+# VS Code Extensions
 vscode "1yib.rust-bundle"
 vscode "a-h.templ"
 vscode "acrylic.acrylic-dark-theme"
@@ -277,7 +262,3 @@ vscode "yzhang.markdown-all-in-one"
 vscode "ziglang.vscode-zig"
 vscode "ziterz.codesandbox-black-theme"
 vscode "zxh404.vscode-proto3"
-go "cmd/go"
-go "cmd/gofmt"
-go "golang.org/x/tools/gopls"
-go "honnef.co/go/tools/cmd/staticcheck"
