@@ -1,13 +1,68 @@
 # Dotfiles
 
-## Setup a new Mac
+Dotfiles managed with [Nix](https://nixos.org/) and [Home Manager](https://github.com/nix-community/home-manager).
+
+## Prerequisites
+
+### Install Nix
+
+```sh
+curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
+```
+
+### macOS: Install Xcode Command Line Tools and Homebrew
 
 ```sh
 sudo xcode-select --install
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-brew bundle --file ~/.Brewfile
-sh -c "$(curl -fsLS get.chezmoi.io)" -- init --ssh --apply arthur-fontaine
+```
+
+## Setup
+
+### 1. Clone this repository
+
+```sh
+git clone --depth 1 git@github.com:arthur-fontaine/dotfiles.git ~/.dotfiles
+cd ~/.dotfiles
+```
+
+### 2. Apply Home Manager configuration
+
+For macOS (Apple Silicon):
+```sh
+nix run home-manager -- switch --flake .#arthur-fontaine@darwin-aarch64
+```
+
+For macOS (Intel):
+```sh
+nix run home-manager -- switch --flake .#arthur-fontaine@darwin-x86_64
+```
+
+For Linux (x86_64):
+```sh
+nix run home-manager -- switch --flake .#arthur-fontaine@linux-x86_64
+```
+
+For Linux (ARM64):
+```sh
+nix run home-manager -- switch --flake .#arthur-fontaine@linux-aarch64
+```
+
+### 3. macOS: Install GUI applications with Homebrew
+
+```sh
+brew bundle --file=~/.config/homebrew/Brewfile
+```
+
+### 4. Generate Zsh plugins
+
+```sh
 antidote bundle < ~/.config/zsh/zsh_plugins.txt > ~/.config/zsh/zsh_plugins.zsh
+```
+
+### 5. Install development tools with mise
+
+```sh
 mise install
 ```
 
