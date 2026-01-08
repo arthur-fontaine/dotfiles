@@ -1,7 +1,7 @@
 window-padding-x = 8
 window-padding-y = 8
 
-macos-titlebar-style = "tabs"
+# macos-titlebar-style = "tabs"
 
 font-family = "JetBrains Mono"
 
@@ -12,4 +12,6 @@ keybind = cmd+alt+right=next_tab
 keybind = cmd+backspace=text:\x15
 keybind = global:cmd+ctrl+t=toggle_quick_terminal
 
-theme = dark:zed-mono-dark,light:zed-mono-light
+theme = dark:Ayu Mirage,light:Ayu Light
+
+macos-option-as-alt = left
