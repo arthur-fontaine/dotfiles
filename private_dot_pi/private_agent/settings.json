@@ -1,18 +1,7 @@
 {
-  "lastChangelogVersion": "0.64.0",
-  "packages": [
-    "npm:pi-subagents",
-    "git:github.com/arthur-fontaine/pi-osgrep.git",
-    "npm:@edmundmiller/pi-beads",
-    "npm:@ssweens/pi-handoff",
-    "npm:pi-tool-display",
-    "npm:pi-ask-user",
-    "npm:pi-desktop-notify",
-    "npm:pi-mcp-adapter",
-    "npm:pi-rtk-optimizer",
-    "git:github.com/arthur-fontaine/pi-sandbox.git"
-  ],
-  "defaultProvider": "anthropic",
-  "defaultModel": "claude-sonnet-4-6",
-  "defaultThinkingLevel": "medium"
+  "lastChangelogVersion": "0.66.1",
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-5.4",
+  "defaultThinkingLevel": "medium",
+  "quietStartup": true
 }
