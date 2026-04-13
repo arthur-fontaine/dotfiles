@@ -4,9 +4,15 @@
   "allowNetwork": true,
   "readOnlyPaths": [
     "~/.config/ghostty",
-    "~/Library/Preferences/.GlobalPreferences.plist"
+    "~/Library/Preferences/.GlobalPreferences.plist",
+    "/Applications",
+    "/var",
+    "~/.gitconfig",
+    "~/.ssh/known_hosts"
   ],
-  "readWritePaths": [],
+  "readWritePaths": [
+    "/dev"
+  ],
   "protectedPaths": [
     "~/.ssh",
     "~/.aws",

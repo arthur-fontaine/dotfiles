@@ -262,7 +262,7 @@ function grantExistingPath(caps: CapabilitySet, target: string, mode: AccessMode
 			caps.allowPath(current, mode);
 			return current;
 		}
-		if (stat.isFile()) {
+		if (stat.isFile() || stat.isCharacterDevice() || stat.isBlockDevice() || stat.isFIFO() || stat.isSocket()) {
 			caps.allowFile(current, mode);
 			return current;
 		}
