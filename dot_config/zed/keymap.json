@@ -56,11 +56,6 @@
     "context": "(Editor && mode == full)",
     "bindings": {
       "cmd-enter": "editor::NewlineAbove",
-    },
-  },
-  {
-    "context": "(Editor && mode == full)",
-    "bindings": {
       "alt-cmd-l": null,
     },
   },
@@ -75,5 +70,29 @@
     "bindings": {
       "alt-cmd-l": null,
     },
+  },
+  {
+    "context": "Workspace",
+    "bindings": {
+      "cmd-shift-n": null,
+    },
+  },
+  {
+    "context": "ProjectPanel",
+    "bindings": {
+      "cmd-shift-n": "project_panel::NewDirectory",
+    },
+  },
+  {
+    "context": "(Editor && edit_prediction)",
+    "bindings": {
+      "cmd-right": "editor::AcceptNextWordEditPrediction",
+    },
+  },
+  {
+    "bindings": {
+      "cmd-right": "editor::AcceptNextWordEditPrediction",
+    },
+    "context": "(Editor && edit_prediction)",
   },
 ]

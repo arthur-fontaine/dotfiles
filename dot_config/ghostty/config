@@ -15,3 +15,5 @@ keybind = global:cmd+ctrl+t=toggle_quick_terminal
 theme = dark:Ayu Mirage,light:Ayu Light
 
 macos-option-as-alt = left
+
+adjust-cell-height = 10

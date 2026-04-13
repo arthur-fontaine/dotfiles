@@ -1,5 +1,5 @@
 [tools]
-node = 'lts'
+node = "24"
 deno = 'latest'
 python = 'latest'
 uv = 'latest'
@@ -13,6 +13,8 @@ rust = 'latest'
 "npm:gacp" = 'latest'
 "npm:typescript-language-server" = 'latest'
 "npm:typescript" = 'latest'
+"npm:@mariozechner/pi-coding-agent" = 'latest'
+"npm:osgrep" = 'latest'
 
 [settings]
 idiomatic_version_file_enable_tools = ["python"]

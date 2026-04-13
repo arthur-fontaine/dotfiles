@@ -5,10 +5,8 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-
 # Set the zsh config directory
 export ZSHRCD=~/.config/zsh/zshrc.d
-
 
 # Activate Antidote
 source /opt/homebrew/opt/antidote/share/antidote/antidote.zsh
@@ -19,5 +17,9 @@ source ~/.config/zsh/zsh_plugins.zsh
 # If you want to load plugins from zsh_plugins.txt instead of the generated zsh_plugins.zsh file, uncomment the following line:
 # antidote load ~/.config/zsh/zsh_plugins.txt
 
-
 # The rest of the config is in the ./.config/zshrc.d directory
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/Users/arthur-fontaine/.lmstudio/bin"
+# End of LM Studio CLI section
+
