@@ -26,9 +26,23 @@ function stripAnsi(s: string): string {
 	return s.replace(/\x1b\[[0-9;]*m/g, "");
 }
 
+function hasAnsi(s: string): boolean {
+	return /\x1b\[[0-9;]*m/.test(s);
+}
+
 function isEditorBorderLine(s: string): boolean {
 	const plain = stripAnsi(s).trimEnd();
 	return /^[─ ]+(?:[↑↓] \d+ more [─ ]*)?$/.test(plain);
+}
+
+function colorBorderLabel(colorFn: (s: string) => string, label: string): string {
+	if (!label) return "";
+	if (!hasAnsi(label)) return colorFn(label);
+
+	const leading = label.match(/^\s*/)?.[0] ?? "";
+	const trailing = label.match(/\s*$/)?.[0] ?? "";
+	const core = label.slice(leading.length, label.length - trailing.length);
+	return colorFn(leading) + core + colorFn(trailing);
 }
 
 function buildBorderLine(
@@ -41,7 +55,7 @@ function buildBorderLine(
 ): string {
 	const innerWidth = width - visibleWidth(cornerL) - visibleWidth(cornerR);
 	const dashCount = Math.max(0, innerWidth - visibleWidth(left) - visibleWidth(right));
-	return colorFn(cornerL + left + "─".repeat(dashCount) + right + cornerR);
+	return colorFn(cornerL) + colorBorderLabel(colorFn, left) + colorFn("─".repeat(dashCount)) + colorBorderLabel(colorFn, right) + colorFn(cornerR);
 }
 
 function getStatusPlacement(key: string): StatusPlacement {
