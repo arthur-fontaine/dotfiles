@@ -1,5 +1,5 @@
 [tools]
-node = "24"
+node = "lts"
 deno = 'latest'
 python = 'latest'
 uv = 'latest'

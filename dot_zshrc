@@ -19,7 +19,3 @@ source ~/.config/zsh/zsh_plugins.zsh
 
 # The rest of the config is in the ./.config/zshrc.d directory
 
-# Added by LM Studio CLI (lms)
-export PATH="$PATH:/Users/arthur-fontaine/.lmstudio/bin"
-# End of LM Studio CLI section
-
