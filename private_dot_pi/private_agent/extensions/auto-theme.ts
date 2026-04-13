@@ -11,12 +11,10 @@ type ThemeMode = "dark" | "light";
 
 async function getMacOSTheme(): Promise<ThemeMode> {
 	try {
-		const { stdout } = await execAsync(
-			"osascript -e 'tell application \"System Events\" to tell appearance preferences to return dark mode'",
-		);
-		return stdout.trim() === "true" ? "dark" : "light";
-	} catch {
+		await execAsync("defaults read -g AppleInterfaceStyle");
 		return "dark";
+	} catch {
+		return "light";
 	}
 }
 

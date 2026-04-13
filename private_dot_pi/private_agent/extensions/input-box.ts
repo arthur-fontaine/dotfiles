@@ -12,7 +12,9 @@
 import type { AssistantMessage } from "@mariozechner/pi-ai";
 import { CustomEditor, type ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { visibleWidth, type Component, type Focusable } from "@mariozechner/pi-tui";
-import * as os from "os";
+
+const STATUS_PLACEMENTS = ["top-left", "top-right", "bottom-left", "bottom-right"] as const;
+type StatusPlacement = (typeof STATUS_PLACEMENTS)[number];
 
 const MIN_CONTENT_LINES = 5;
 
@@ -42,9 +44,31 @@ function buildBorderLine(
 	return colorFn(cornerL + left + "─".repeat(dashCount) + right + cornerR);
 }
 
+function getStatusPlacement(key: string): StatusPlacement {
+	const match = key.match(/:(top-left|top-right|bottom-left|bottom-right)$/);
+	return (match?.[1] as StatusPlacement | undefined) ?? "bottom-left";
+}
+
 export default function (pi: ExtensionAPI) {
 	pi.on("session_start", (_event, ctx) => {
 		let activeEditor: AmpEditor | undefined;
+		let footerDataRef: any;
+
+		const getStatusSlots = () => {
+			const slots: Record<StatusPlacement, string[]> = {
+				"top-left": [],
+				"top-right": [],
+				"bottom-left": [],
+				"bottom-right": [],
+			};
+			const statuses = footerDataRef?.getExtensionStatuses?.();
+			if (!statuses) return slots;
+			for (const [key, text] of statuses.entries()) {
+				if (!text) continue;
+				slots[getStatusPlacement(key)].push(text);
+			}
+			return slots;
+		};
 
 		class AmpEditor extends CustomEditor {
 			enableClearOnShrink(): void {
@@ -95,23 +119,26 @@ export default function (pi: ExtensionAPI) {
 				}
 
 				const { input, output, cost, thinking } = this.sessionStats();
+				const statusSlots = getStatusSlots();
 				const hasTokens = input + output > 0;
-				const topLeft = hasTokens
-					? ` ↑${fmtTokens(input)} ↓${fmtTokens(output)} · $${cost.toFixed(3)} `
-					: "";
+				const tokenStats = hasTokens ? `↑${fmtTokens(input)} ↓${fmtTokens(output)} · $${cost.toFixed(3)}` : "";
 				const provider = ctx.model?.provider;
 				const modelId = ctx.model?.id;
-				const topRightParts = [provider, modelId, thinking].filter(Boolean);
-				const topRight = topRightParts.length > 0
-					? ` ${topRightParts.join(" · ")} `
-					: "";
+				const modelInfo = [provider, modelId, thinking].filter(Boolean).join(" · ");
+				const topLeftParts = statusSlots["top-left"].filter(Boolean);
+				const topRightParts = [...statusSlots["top-right"], modelInfo].filter(Boolean);
+				const bottomLeftParts = statusSlots["bottom-left"].filter(Boolean);
+				const bottomRightParts = [...statusSlots["bottom-right"], tokenStats].filter(Boolean);
+				const topLeft = topLeftParts.length > 0 ? ` ${topLeftParts.join(" · ")} ` : "";
+				const topRight = topRightParts.length > 0 ? ` ${topRightParts.join(" · ")} ` : "";
+				const bottomLeft = bottomLeftParts.length > 0 ? ` ${bottomLeftParts.join(" · ")} ` : "";
+				const bottomRight = bottomRightParts.length > 0 ? ` ${bottomRightParts.join(" · ")} ` : "";
 
 				const top = buildBorderLine(this.borderColor, width, topLeft, topRight, "╭", "╮");
 				const lb = this.borderColor("│") + " ";
 				const rb = " " + this.borderColor("│");
 				const content = contentLines.map((l) => lb + l + rb);
-				const cwd = process.cwd().replace(os.homedir(), "~");
-				const bottom = buildBorderLine(this.borderColor, width, "", ` ${cwd} `, "╰", "╯");
+				const bottom = buildBorderLine(this.borderColor, width, bottomLeft, bottomRight, "╰", "╯");
 
 				return [top, ...content, bottom];
 			}
@@ -128,13 +155,20 @@ export default function (pi: ExtensionAPI) {
 			return activeEditor;
 		});
 
-		// Hide the normal footer as well.
-		ctx.ui.setFooter(() => ({
-			invalidate() {},
-			render(): string[] {
-				return [];
-			},
-		}));
+		// Hide the normal footer as well, but keep footerData so the docked input
+		// box can display extension statuses in its own chrome.
+		ctx.ui.setFooter((_tui, _theme, footerData) => {
+			footerDataRef = footerData;
+			return {
+				dispose() {
+					footerDataRef = undefined;
+				},
+				invalidate() {},
+				render(): string[] {
+					return [];
+				},
+			};
+		});
 
 		// Reserve vertical space in the normal layout so the bottom overlay does
 		// not cover the last visible chat lines when the terminal is full.
@@ -220,8 +254,19 @@ export default function (pi: ExtensionAPI) {
 			}
 		}, 50);
 
+		let lastStatusSignature = "";
+		const statusSyncTimer = setInterval(() => {
+			const statuses = footerDataRef?.getExtensionStatuses?.();
+			const signature = statuses ? JSON.stringify(Array.from(statuses.entries())) : "";
+			if (signature !== lastStatusSignature) {
+				lastStatusSignature = signature;
+				activeEditor?.requestFullRender();
+			}
+		}, 250);
+
 		pi.on("session_shutdown", () => {
 			clearInterval(overlaySyncTimer);
+			clearInterval(statusSyncTimer);
 			closeOverlayNow();
 		});
 	});
