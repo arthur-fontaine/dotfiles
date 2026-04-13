@@ -3,7 +3,8 @@ import os from "node:os";
 import path, { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { AccessMode, apply, CapabilitySet, QueryContext, SandboxState, supportInfo } from "nono-ts";
-import { getAgentDir, type ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import { spawnSync } from "node:child_process";
+import { createBashTool, type BashOperations, getAgentDir, type ExtensionAPI } from "@mariozechner/pi-coding-agent";
 
 type PathAccess = "read" | "write" | "readwrite";
 
@@ -225,6 +226,8 @@ function getRuntimeReadPaths(): string[] {
 			"/bin",
 			"/sbin",
 			"/usr",
+			"/etc",
+			"/private/etc",
 			"/System",
 			"/Library",
 			"/Applications",
@@ -270,18 +273,44 @@ function grantExistingPath(caps: CapabilitySet, target: string, mode: AccessMode
 }
 
 function addExecSupport(caps: CapabilitySet) {
-	for (const command of ["bash", "sh", "zsh", "fish", "env"]) {
-		try {
-			caps.allowCommand(command);
-		} catch {
-			// Ignore unsupported command filters.
-		}
-	}
 	try {
 		caps.platformRule("(allow process-exec)");
 	} catch {
 		// Linux ignores platform rules; macOS may reject malformed rules.
 	}
+}
+
+function getSandboxCompatibleBashOps(): BashOperations {
+	return {
+		exec(command, cwd, { onData, signal, timeout, env }) {
+			const shell = existsSync("/bin/bash") ? "/bin/bash" : "sh";
+			return new Promise((resolveExec, rejectExec) => {
+				if (signal?.aborted) {
+					rejectExec(new Error("aborted"));
+					return;
+				}
+				const result = spawnSync(shell, ["-c", command], {
+					cwd,
+					env: env ?? process.env,
+					encoding: "buffer",
+					timeout: timeout && timeout > 0 ? timeout * 1000 : undefined,
+					maxBuffer: 10 * 1024 * 1024,
+				});
+				if (result.stdout?.length) onData(result.stdout);
+				if (result.stderr?.length) onData(result.stderr);
+				if (result.error) {
+					const message = result.error.message || String(result.error);
+					if (message.includes("ETIMEDOUT")) {
+						rejectExec(new Error(`timeout:${timeout}`));
+						return;
+					}
+					rejectExec(result.error);
+					return;
+				}
+				resolveExec({ exitCode: result.status });
+			});
+		},
+	};
 }
 
 function buildSandbox(cwd: string, config: Required<SandboxConfig>, configFiles: string[]) {
@@ -450,6 +479,15 @@ export default function (pi: ExtensionAPI) {
 
 	restoreAppliedState();
 
+	const sandboxCompatibleBash = createBashTool(process.cwd(), {
+		operations: getSandboxCompatibleBashOps(),
+	});
+
+	pi.registerTool({
+		...sandboxCompatibleBash,
+		label: "bash",
+	});
+
 	pi.on("session_start", async (_event, ctx) => {
 		const loaded = loadConfig(ctx.cwd);
 		dangerousPatterns = compileDangerousPatterns(loaded.config);
@@ -571,10 +609,10 @@ export default function (pi: ExtensionAPI) {
 
 	pi.on("user_bash", async (event, ctx) => {
 		const command = (event.command ?? "").trim();
-		if (!command) return;
-		if (autoApprovedCommands.has(command)) return;
+		if (!command) return { operations: getSandboxCompatibleBashOps() };
+		if (autoApprovedCommands.has(command)) return { operations: getSandboxCompatibleBashOps() };
 		const dangerous = dangerousPatterns.some((pattern) => pattern.test(command));
-		if (!dangerous) return;
+		if (!dangerous) return { operations: getSandboxCompatibleBashOps() };
 		if (!ctx.hasUI) {
 			return {
 				result: {
@@ -596,6 +634,7 @@ export default function (pi: ExtensionAPI) {
 				},
 			};
 		}
+		return { operations: getSandboxCompatibleBashOps() };
 	});
 
 	pi.registerCommand("sandbox", {
