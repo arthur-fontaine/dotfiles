@@ -4,11 +4,9 @@
  * Architecture:
  * - A real CustomEditor subclass handles all input, submit, keybindings, cursor.
  * - Its normal slot in Pi's layout is hidden (render() => []).
- * - A bottom-anchored overlay renders the same editor state at the very bottom
- *   of the terminal and delegates keyboard input back to that real editor.
- *
- * This makes the editor truly terminal-bottom-docked instead of merely being
- * the last element in Pi's normal top-down layout.
+ * - A bottom-anchored overlay renders the same editor state at the terminal bottom.
+ * - When built-in selectors like /tree take focus, the overlay is temporarily
+ *   removed and recreated afterwards so Pi can shrink/redraw the base layout.
  */
 
 import type { AssistantMessage } from "@mariozechner/pi-ai";
@@ -20,6 +18,15 @@ const MIN_CONTENT_LINES = 5;
 
 function fmtTokens(n: number): string {
 	return n < 1000 ? `${n}` : `${(n / 1000).toFixed(1)}k`;
+}
+
+function stripAnsi(s: string): string {
+	return s.replace(/\x1b\[[0-9;]*m/g, "");
+}
+
+function isEditorBorderLine(s: string): boolean {
+	const plain = stripAnsi(s).trimEnd();
+	return /^[─ ]+(?:[↑↓] \d+ more [─ ]*)?$/.test(plain);
 }
 
 function buildBorderLine(
@@ -40,6 +47,14 @@ export default function (pi: ExtensionAPI) {
 		let activeEditor: AmpEditor | undefined;
 
 		class AmpEditor extends CustomEditor {
+			enableClearOnShrink(): void {
+				this.tui.setClearOnShrink(true);
+			}
+
+			requestFullRender(): void {
+				this.tui.requestRender(true);
+			}
+
 			private sessionStats() {
 				let input = 0,
 					output = 0,
@@ -65,7 +80,16 @@ export default function (pi: ExtensionAPI) {
 				const raw = super.render(innerWidth);
 				if (raw.length < 2) return raw;
 
-				const contentLines = raw.slice(1, raw.length - 1);
+				const bottomBorderIndex = (() => {
+					for (let i = raw.length - 1; i >= 1; i--) {
+						if (isEditorBorderLine(raw[i]!)) return i;
+					}
+					return raw.length - 1;
+				})();
+
+				const editorBodyLines = raw.slice(1, bottomBorderIndex);
+				const autocompleteLines = raw.slice(bottomBorderIndex + 1);
+				const contentLines = [...editorBodyLines, ...autocompleteLines];
 				while (contentLines.length < MIN_CONTENT_LINES) {
 					contentLines.push(" ".repeat(innerWidth));
 				}
@@ -100,6 +124,7 @@ export default function (pi: ExtensionAPI) {
 
 		ctx.ui.setEditorComponent((tui, theme, keybindings) => {
 			activeEditor = new AmpEditor(tui, theme, keybindings);
+			activeEditor.enableClearOnShrink();
 			return activeEditor;
 		});
 
@@ -125,43 +150,79 @@ export default function (pi: ExtensionAPI) {
 			{ placement: "belowEditor" },
 		);
 
-		// Show the visible editor as a bottom-anchored overlay.
-		void ctx.ui.custom<void>(
-			(tui) => {
-				class DockedEditorOverlay implements Component, Focusable {
-					private _focused = false;
-					get focused(): boolean {
-						return this._focused;
-					}
-					set focused(value: boolean) {
-						this._focused = value;
-						if (activeEditor) activeEditor.focused = value;
+		let overlayMounted = false;
+		let closeOverlay: (() => void) | undefined;
+
+		const openOverlay = () => {
+			if (overlayMounted || !activeEditor) return;
+			overlayMounted = true;
+
+			void ctx.ui.custom<void>(
+				(tui, _theme, _keybindings, done) => {
+					closeOverlay = () => done(undefined);
+
+					class DockedEditorOverlay implements Component, Focusable {
+						private _focused = false;
+						get focused(): boolean {
+							return this._focused;
+						}
+						set focused(value: boolean) {
+							this._focused = value;
+							if (activeEditor) activeEditor.focused = value;
+						}
+
+						render(width: number): string[] {
+							return activeEditor?.renderDocked(width) ?? [];
+						}
+
+						handleInput(data: string): void {
+							activeEditor?.handleInput(data);
+							tui.requestRender();
+						}
+
+						invalidate(): void {
+							activeEditor?.invalidate();
+						}
 					}
 
-					render(width: number): string[] {
-						return activeEditor?.renderDocked(width) ?? [];
-					}
-
-					handleInput(data: string): void {
-						activeEditor?.handleInput(data);
-						tui.requestRender();
-					}
-
-					invalidate(): void {
-						activeEditor?.invalidate();
-					}
-				}
-
-				return new DockedEditorOverlay();
-			},
-			{
-				overlay: true,
-				overlayOptions: {
-					anchor: "bottom-center",
-					width: "100%",
-					margin: { left: 0, right: 0, bottom: 0, top: 0 },
+					return new DockedEditorOverlay();
 				},
-			},
-		);
+				{
+					overlay: true,
+					overlayOptions: {
+						anchor: "bottom-center",
+						width: "100%",
+						margin: { left: 0, right: 0, bottom: 0, top: 0 },
+					},
+				},
+			).finally(() => {
+				overlayMounted = false;
+				closeOverlay = undefined;
+				activeEditor?.requestFullRender();
+			});
+		};
+
+		const closeOverlayNow = () => {
+			if (!closeOverlay) return;
+			const close = closeOverlay;
+			closeOverlay = undefined;
+			close();
+		};
+
+		openOverlay();
+
+		const overlaySyncTimer = setInterval(() => {
+			const shouldShowOverlay = activeEditor?.focused === true;
+			if (shouldShowOverlay) {
+				openOverlay();
+			} else {
+				closeOverlayNow();
+			}
+		}, 50);
+
+		pi.on("session_shutdown", () => {
+			clearInterval(overlaySyncTimer);
+			closeOverlayNow();
+		});
 	});
 }
