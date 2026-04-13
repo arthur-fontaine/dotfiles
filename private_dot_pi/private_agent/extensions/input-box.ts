@@ -111,6 +111,20 @@ export default function (pi: ExtensionAPI) {
 			},
 		}));
 
+		// Reserve vertical space in the normal layout so the bottom overlay does
+		// not cover the last visible chat lines when the terminal is full.
+		ctx.ui.setWidget(
+			"input-box-reserved-space",
+			() => ({
+				invalidate() {},
+				render(width: number): string[] {
+					const height = activeEditor?.renderDocked(width).length ?? MIN_CONTENT_LINES + 2;
+					return Array.from({ length: height }, () => "");
+				},
+			}),
+			{ placement: "belowEditor" },
+		);
+
 		// Show the visible editor as a bottom-anchored overlay.
 		void ctx.ui.custom<void>(
 			(tui) => {
